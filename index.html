@@ -181,21 +181,40 @@ footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);fo
     <p style="color:var(--muted);max-width:44ch">Tell us about your brand and what you have in mind. Partnerships are handled by Lauren's manager.</p>
     <p style="font-weight:600">Partnerships <a href="mailto:collabs@lwlsn.com">collabs@lwlsn.com</a></p>
   </div>
-  <!-- FORM: inquiries are emailed to the address after formsubmit.co/ . The first submission sends a one-time confirmation email to that address. -->
-  <form class="cf" action="https://formsubmit.co/collabs@lwlsn.com" method="POST">
-    <input type="hidden" name="_subject" value="New brand inquiry from Lauren's site">
-    <input type="hidden" name="_template" value="table">
-    <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+  <form class="cf" id="cf" action="https://api.web3forms.com/submit" method="POST">
+    <input type="hidden" name="access_key" value="5982e373-cd57-427f-bdb1-02cfe78c6a2b">
+    <input type="hidden" name="subject" value="New brand inquiry from lwlsn.com">
+    <input type="hidden" name="from_name" value="Lauren Wilson site">
+    <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
     <div><label for="cfName">Name</label><input id="cfName" name="name" required autocomplete="name"></div>
     <div><label for="cfBrand">Brand</label><input id="cfBrand" name="brand" autocomplete="organization"></div>
     <div><label for="cfEmail">Email</label><input id="cfEmail" name="email" type="email" required autocomplete="email"></div>
     <div><label for="cfMsg">Message</label><textarea id="cfMsg" name="message" required></textarea></div>
-    <button class="btn" type="submit" style="align-self:flex-start">Send inquiry</button>
+    <button class="btn" id="cfBtn" type="submit" style="align-self:flex-start">Send inquiry</button>
+    <p id="cfStatus" role="status" style="margin:0;font-size:14px;color:var(--muted)"></p>
   </form>
 </div></section>
 </main>
 
 <footer><div class="wrap">Lauren Wilson &copy; <span id="yr">2026</span></div></footer>
-<script>document.getElementById('yr').textContent=new Date().getFullYear()</script>
+<script>
+document.getElementById('yr').textContent=new Date().getFullYear();
+(function(){
+  var f=document.getElementById('cf'),btn=document.getElementById('cfBtn'),st=document.getElementById('cfStatus');
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    if(!f.reportValidity())return;
+    btn.disabled=true;btn.textContent='Sending...';st.textContent='';
+    fetch(f.action,{method:'POST',headers:{'Accept':'application/json'},body:new FormData(f)})
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if(d.success){f.reset();st.style.color='var(--ink)';st.textContent="Thanks, we got your message and will be in touch soon.";}
+        else{throw new Error()}
+      })
+      .catch(function(){st.style.color='var(--accent)';st.innerHTML='That didn\'t send. Please email <a href="mailto:collabs@lwlsn.com">collabs@lwlsn.com</a> instead.';})
+      .finally(function(){btn.disabled=false;btn.textContent='Send inquiry';});
+  });
+})();
+</script>
 </body>
 </html>
